@@ -60,11 +60,12 @@ if __name__ == '__main__':
     len_alns = [
             100, 
             1000,
-            10000
+            5000,
+            #10000
             ]
 
-    exec_time = "5:00:00"
-    mem = "64000M"
+    exec_time = "24:00:00"
+    mem = "80000M"
     cpus_per_task = "12"
 
     # For testing
@@ -128,5 +129,11 @@ if __name__ == '__main__':
                             " --output={} {}".format(exp_name, exec_time, 
                                     program, config_file, mem, cpus_per_task,
                                     s_error, s_output, sb_program)
-                    print(cmd)
-                    os.system(cmd)
+
+                    res_file = output_dir+"{}/{}/{}_results.pkl".format(
+                            evomodel, exp_name, exp_name)
+
+                    if not os.path.isfile(res_file):
+                        print("\n", exp_name)
+                        #print(cmd)
+                        #os.system(cmd)

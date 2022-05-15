@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     print("Runing {} experiments\n".format(str_time))
 
-    max_iter = "10000"
+    max_iter = "5000"
     n_reps = "10"
 
     hyper_types = {
@@ -71,19 +71,18 @@ if __name__ == '__main__':
             ]
 
     # Choose here type of data and model
-    evomodel = model_types[2]
-    data_model, rates, freqs = data_types[2]
+    evomodel = model_types[1]
+    data_model, rates, freqs = data_types[1]
     nb_seqs, branch_lens = branches[1]
     len_aln = len_alns[1]
 
-    exec_time = "6:00:00"
-    mem = "64000M"
+    exec_time = "24:00:00"
+    mem = "80000M"
+    cpus_per_task = "24"
 
     # For testing
     #exec_time = "00:05:00"
     #mem = "8000M"
-
-    cpus_per_task = "12"
 
     ## Fetch argument values from ini file
     ## ###################################
@@ -143,5 +142,10 @@ if __name__ == '__main__':
                     " --output={} {}".format(exp_name, exec_time, 
                             program, config_file, mem, cpus_per_task,
                             s_error, s_output, sb_program)
-            print(cmd)
-            os.system(cmd)
+            res_file = output_dir+"{}/{}/{}_results.pkl".format(
+                    evomodel, exp_name, exp_name)
+
+            if not os.path.isfile(res_file):
+                print("\n", exp_name)
+                print(cmd)
+                os.system(cmd)
