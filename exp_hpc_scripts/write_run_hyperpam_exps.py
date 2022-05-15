@@ -36,6 +36,13 @@ if __name__ == '__main__':
     max_iter = "10000"
     n_reps = "10"
 
+    hyper_types = {
+            "kl": ("alpha_kl", (0.0001, 0.001, 0.01, 0.1)),
+            "hs": ("hidden_size", (4, 16, 32, 64)),
+            "ns": ("nb_samples", (1, 10, 100, 1000)),
+            "lr": ("learning_rate", (0.00005, 0.0005, 0.005, 0.05)),
+            }
+
     model_types = [
             "jc69",
             "k80", 
@@ -63,13 +70,20 @@ if __name__ == '__main__':
             10000
             ]
 
-    exec_time = "5:00:00"
+    # Choose here type of data and model
+    evomodel = model_types[2]
+    data_model, rates, freqs = data_types[2]
+    nb_seqs, branch_lens = branches[1]
+    len_aln = len_alns[1]
+
+    exec_time = "6:00:00"
     mem = "64000M"
-    cpus_per_task = "12"
 
     # For testing
     #exec_time = "00:05:00"
     #mem = "8000M"
+
+    cpus_per_task = "12"
 
     ## Fetch argument values from ini file
     ## ###################################
@@ -87,46 +101,47 @@ if __name__ == '__main__':
     makedirs(output_dir, mode=0o700, exist_ok=True)
 
     config.set("io", "output_path", output_dir)
-    config.set("io", "scores_from_file", scores_from_file)
-    
+    config.set("io", "scores_from_file", scores_from_file)    
+
+    config.set("data", "alignment_size", str(len_aln))
+    config.set("data", "branch_lengths", branch_lens) 
+    config.set("data", "rates", rates)
+    config.set("data", "freqs", freqs)
+    config.set("subvmodel", "evomodel", evomodel)
     config.set("hperparams", "n_epochs", max_iter)
     config.set("hperparams", "nb_replicates", n_reps)
 
     job_dir = "../exp_jobs/{}/".format(str_time)
     makedirs(job_dir, mode=0o700, exist_ok=True)
 
-    for data_model, rates, freqs in data_types:
-        for nb_seqs, branch_lens in branches:
-            for len_aln in len_alns:
-                for evomodel in model_types:
-            
-                    # nb3_l5k_datajc69_evojc69.ini
-                    exp_name = "nb{}_l{}_data{}_evo{}".format(nb_seqs, 
-                        len_aln, data_model, evomodel)
+    for hyper_code in hyper_types:
+        hyper_name = hyper_types[hyper_code][0]
+        hyper_values = hyper_types[hyper_code][1]
 
-                    # Update configs
-                    config.set("data", "alignment_size", str(len_aln))
-                    config.set("data", "branch_lengths", branch_lens) 
-                    config.set("data", "rates", rates)
-                    config.set("data", "freqs", freqs)
-                    config.set("subvmodel", "evomodel", evomodel)
-                    config.set("settings", "job_name", exp_name)
+        for hyper_value in hyper_values:
+            # nb3_l5k_datajc69_evojc69.ini
+            exp_name = "evo{}_{}_{}".format(evomodel,
+                    hyper_code, hyper_value)
 
-                    # write it on a file
-                    config_file = os.path.join(config_path, "{}.ini"\
-                            "".format(exp_name))
+            # Update configs
+            config.set("hperparams", hyper_name, str(hyper_value))
+            config.set("settings", "job_name", exp_name)
 
-                    with open (config_file, "w") as fh:
-                        config.write(fh)
+            # write it on a file
+            config_file = os.path.join(config_path, "{}.ini"\
+                    "".format(exp_name))
 
-                    s_error = os.path.join(job_dir, exp_name+"_%j.err")
-                    s_output = os.path.join(job_dir, exp_name+"_%j.out")
+            with open (config_file, "w") as fh:
+                config.write(fh)
 
-                    cmd = "sbatch --job-name={} --time={}"\
-                            " --export=PROGRAM={},CONF_file={} "\
-                            "--mem={} --cpus-per-task={} --error={}"\
-                            " --output={} {}".format(exp_name, exec_time, 
-                                    program, config_file, mem, cpus_per_task,
-                                    s_error, s_output, sb_program)
-                    print(cmd)
-                    os.system(cmd)
+            s_error = os.path.join(job_dir, exp_name+"_%j.err")
+            s_output = os.path.join(job_dir, exp_name+"_%j.out")
+
+            cmd = "sbatch --job-name={} --time={}"\
+                    " --export=PROGRAM={},CONF_file={} "\
+                    "--mem={} --cpus-per-task={} --error={}"\
+                    " --output={} {}".format(exp_name, exec_time, 
+                            program, config_file, mem, cpus_per_task,
+                            s_error, s_output, sb_program)
+            print(cmd)
+            os.system(cmd)
