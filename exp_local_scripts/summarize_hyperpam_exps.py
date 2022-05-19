@@ -123,7 +123,7 @@ def plot_hyperparams(
         #axs[i].set_ylim([None, 0])
         #axs[i].set_ylim([-10000, 0])
         #print( np.min(hyper_scores[:,:,0,:].flatten()) )
-        axs[i].set_ylim([ np.min(hyper_scores[:,:,0,:].flatten())  , 0])
+        axs[i].set_ylim([ np.min(hyper_scores[:,:,0,:].flatten()), 0])
         axs[i].set_xticks([t for t in range(1, nb_iters+1) if t==1 or\
                 t % print_xtick_every==0])
         axs[i].set_xlabel("Iterations")
@@ -165,10 +165,11 @@ if __name__ == '__main__':
     n_reps = "10"
 
     hyper_types = {
-            "kl": ("alpha_kl", (0.0001, 0.001, 0.01, 0.1)),
-            "hs": ("hidden_size", (4, 16, 32, 64)),
-            "ns": ("nb_samples", (1, 10, 100, 1000)),
-            "lr": ("learning_rate", (0.00005, 0.0005, 0.005, 0.05)),
+            "kl": ("alpha_kl", (0.0001, 0.001, 0.01, 0.1), 0.0001),
+            "hs": ("hidden_size", (4, 16, 32, 64), 32),
+            "ns": ("nb_samples", (1, 10, 100, 1000), 100),
+            "lr": ("learning_rate",
+                (0.00005, 0.0005, 0.005, 0.05), 0.005),
             }
 
     model_types = [
@@ -195,7 +196,7 @@ if __name__ == '__main__':
     len_alns = [
             100, 
             1000,
-            10000
+            5000
             ]
 
     report_n_epochs = 200
@@ -223,9 +224,15 @@ if __name__ == '__main__':
         hyper_scores = []
         evo_hyper = "{}_{}".format(evomodel, hyper_code) 
         for hyper_value in hyper_values:
-            # evogtr_hs_4
-            exp_name = "evo{}_{}_{}".format(evomodel,
+            # evogtr_hs_4 (old names)
+            #exp_name = "evo{}_{}_{}".format(evomodel,
+            #        hyper_code, hyper_value)
+ 
+            # nb3_l5k_datajc69_evojc69_hs4.ini
+            exp_name = "nb{}_l{}_data{}_evo{}_{}{}".format(
+                    nb_seqs, len_aln, data_model, evomodel,
                     hyper_code, hyper_value)
+
             print(exp_name)
 
             output_exp = output_dir+"{}/{}/".format(

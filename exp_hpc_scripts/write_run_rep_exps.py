@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     print("Runing {} experiments\n".format(str_time))
 
-    max_iter = "10000"
+    max_iter = "5000"
     n_reps = "10"
 
     model_types = [
@@ -61,11 +61,10 @@ if __name__ == '__main__':
             100, 
             1000,
             5000,
-            #10000
             ]
 
-    exec_time = "24:00:00"
-    mem = "80000M"
+    exec_time = "12:00:00"
+    mem = "64000M"
     cpus_per_task = "12"
 
     # For testing
@@ -102,11 +101,11 @@ if __name__ == '__main__':
                 for evomodel in model_types:
             
                     # nb3_l5k_datajc69_evojc69.ini
-                    exp_name = "nb{}_l{}_data{}_evo{}".format(nb_seqs, 
-                        len_aln, data_model, evomodel)
+                    exp_name = "nb{}_l{}_data{}_evo{}".format(
+                            nb_seqs, len_aln, data_model, evomodel)
 
                     # Update configs
-                    config.set("data", "alignment_size", str(len_aln))
+                    config.set("data","alignment_size", str(len_aln))
                     config.set("data", "branch_lengths", branch_lens) 
                     config.set("data", "rates", rates)
                     config.set("data", "freqs", freqs)
@@ -120,18 +119,23 @@ if __name__ == '__main__':
                     with open (config_file, "w") as fh:
                         config.write(fh)
 
-                    s_error = os.path.join(job_dir, exp_name+"_%j.err")
-                    s_output = os.path.join(job_dir, exp_name+"_%j.out")
+                    s_error = os.path.join(job_dir,
+                            exp_name+"_%j.err")
+                    s_output = os.path.join(job_dir, 
+                            exp_name+"_%j.out")
 
                     cmd = "sbatch --job-name={} --time={}"\
                             " --export=PROGRAM={},CONF_file={} "\
                             "--mem={} --cpus-per-task={} --error={}"\
-                            " --output={} {}".format(exp_name, exec_time, 
-                                    program, config_file, mem, cpus_per_task,
+                            " --output={} {}".format(exp_name,
+                                    exec_time, 
+                                    program, config_file, mem,
+                                    cpus_per_task,
                                     s_error, s_output, sb_program)
 
-                    res_file = output_dir+"{}/{}/{}_results.pkl".format(
-                            evomodel, exp_name, exp_name)
+                    res_file = output_dir+\
+                            "{}/{}/{}_results.pkl".format(
+                                    evomodel, exp_name, exp_name)
 
                     if not os.path.isfile(res_file):
                         print("\n", exp_name)
