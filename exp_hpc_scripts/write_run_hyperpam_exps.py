@@ -72,15 +72,15 @@ if __name__ == '__main__':
             ]
 
     # Choose here type of data and model
-    ind_model = 1
+    ind_model = 2
     evomodel = model_types[ind_model]
     data_model, rates, freqs = data_types[ind_model]
     #
     nb_seqs, branch_lens = branches[1]
     len_aln = len_alns[1]
 
-    exec_time = "12:00:00"
-    mem = "64000M"
+    exec_time = "15:00:00"
+    mem = "75000M"
     cpus_per_task = "12"
 
     # For testing

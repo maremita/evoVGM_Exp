@@ -9,6 +9,9 @@ from datetime import datetime
 
 __author__ = "amine"
 
+"""
+python write_run_rep_exps.py eval_conf_template.ini job_code
+"""
 
 if __name__ == '__main__':
 
@@ -35,6 +38,10 @@ if __name__ == '__main__':
 
     max_iter = "5000"
     n_reps = "10"
+    
+    # Test
+    #max_iter = "100"
+    #n_reps = "2"
 
     model_types = [
             "jc69",
@@ -64,7 +71,7 @@ if __name__ == '__main__':
             ]
 
     exec_time = "12:00:00"
-    mem = "64000M"
+    mem = "75000M"
     cpus_per_task = "12"
 
     # For testing
@@ -139,5 +146,5 @@ if __name__ == '__main__':
 
                     if not os.path.isfile(res_file):
                         print("\n", exp_name)
-                        #print(cmd)
-                        #os.system(cmd)
+                        print(cmd)
+                        os.system(cmd)
