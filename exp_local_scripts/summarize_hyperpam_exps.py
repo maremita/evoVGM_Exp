@@ -407,12 +407,12 @@ if __name__ == '__main__':
     plot_summarized = True
 
     # Choose here type of data and model
-    ind_model = 0
+    ind_model = 2
     evomodel = model_types[ind_model]
     data_model, rates, freqs = data_types[ind_model]
     #
-    nb_seqs, branch_lens = branches[2]
-    len_aln = len_alns[1]
+    nb_seqs, branch_lens = branches[1]
+    len_aln = len_alns[2]
 
     output_dir = "../exp_outputs/{}/".format(job_code)
 
