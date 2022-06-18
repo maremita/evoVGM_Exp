@@ -37,11 +37,13 @@ if __name__ == '__main__':
     n_reps = "10"
 
     hyper_types = {
-            "kl": ("alpha_kl", (0.0001, 0.001, 0.01, 0.1), 0.0001),
-            "hs": ("hidden_size", (4, 16, 32, 64), 32),
-            "ns": ("nb_samples", (1, 10, 100, 1000), 100),
+            "kl": ("alpha_kl", [0.0001, 0.001, 0.01, 0.1], 0.0001),
+            "hs": ("hidden_size", [4, 16, 32, 64], 32),
+            "ns": ("nb_samples", [1, 10, 100, 1000], 100),
+                #[1000], 100),
             "lr": ("learning_rate",
-                (0.00005, 0.0005, 0.005, 0.05), 0.005),
+                [0.00005, 0.0005, 0.005, 0.05], 0.005),
+                #[0.05], 0.005),
             }
 
     model_types = [
@@ -79,9 +81,9 @@ if __name__ == '__main__':
     nb_seqs, branch_lens = branches[1]
     len_aln = len_alns[1]
 
-    exec_time = "15:00:00"
-    mem = "75000M"
-    cpus_per_task = "12"
+    exec_time = "24:00:00"
+    mem = "100000M"
+    cpus_per_task = "24"
 
     # For testing
     #exec_time = "00:05:00"
@@ -160,5 +162,5 @@ if __name__ == '__main__':
 
             if not os.path.isfile(res_file):
                 print("\n", exp_name)
-                print(cmd)
-                os.system(cmd)
+                #print(cmd)
+                #os.system(cmd)
