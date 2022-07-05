@@ -52,16 +52,16 @@ def plot_elbos_data_wise(
         fit_elbos,
         model_types,
         out_file,
-        print_xtick_every=200,
+        sizefont=14,
         usetex=False,
+        print_xtick_every=200,
+        legend='best',
         title="Title"):
 
     fig_format= "png"
     fig_dpi = 300
 
     fig_file = out_file+"."+fig_format
-
-    sizefont = 10
 
     data_models = list(fit_elbos.keys())
     nb_dm = len(data_models)
@@ -101,12 +101,16 @@ def plot_elbos_data_wise(
         axs[i].set_xticks([t for t in range(1, nb_iters+1) \
                 if t==1 or t % print_xtick_every==0])
         axs[i].set_xlabel("Iterations")
-        axs[i].grid()
+        axs[i].grid(zorder=-1)
+        axs[i].grid(zorder=-1,visible=True, which='minor', alpha=0.1)
+        axs[i].minorticks_on()
         if i==0:
             axs[i].set_ylabel("Evidence Lower Bound")
 
-    plt.legend(bbox_to_anchor=(1.06, 1), 
-            loc='upper left', borderaxespad=0.)
+    if legend:
+        plt.legend(bbox_to_anchor=(1.06, 1), 
+                loc=legend, borderaxespad=0.)
+
     #plt.suptitle(title)
     plt.savefig(fig_file, bbox_inches="tight", 
             format=fig_format, dpi=fig_dpi)
@@ -116,6 +120,7 @@ def plot_elbos_data_wise(
 """
 python summarize_rep_exps.py evaldata5k
 """
+
 if __name__ == '__main__':
 
     job_code = sys.argv[1]
@@ -124,41 +129,43 @@ if __name__ == '__main__':
     print("Summarizing {} experiments\n".format(job_code))
 
     model_types = [
-            "jc69",
+            #"jc69",
             "k80", 
-            "gtr"
+            #"gtr"
             ]
 
     data_types = [
-            ("jc69", [0.160, 0.160, 0.160, 0.160, 0.160, 0.160], 
-                [0.25, 0.25, 0.25, 0.25]), 
+            #("jc69", [0.160, 0.160, 0.160, 0.160, 0.160, 0.160], 
+            #    [0.25, 0.25, 0.25, 0.25]), 
             ("k80" , [0.250, 0.125, 0.125, 0.125, 0.125, 0.250],
                 [0.25, 0.25, 0.25, 0.25]),
-            ("gtr" , [0.160, 0.050, 0.160, 0.090, 0.300, 0.240],
-                [0.10, 0.45, 0.30, 0.15])
+            #("gtr" , [0.160, 0.050, 0.160, 0.090, 0.300, 0.240],
+            #    [0.10, 0.45, 0.30, 0.15])
             ]
 
     branches = [
-            (3, [0.1,0.3,0.45]),
-            (4, [0.1,0.3,0.45,0.15]),
+            #(3, [0.1,0.3,0.45]),
+            #(4, [0.1,0.3,0.45,0.15]),
             (5, [0.1,0.3,0.45,0.15,0.2])
             ]
 
     len_alns = [
-            100, 
-            1000,
+            #100, 
+            #1000,
             5000,
             ]
 
     report_n_epochs = 5000
-    print_xtick_every = 500
+    print_xtick_every = 1000
 
     #report_n_epochs = 1000
     #print_xtick_every = 100
 
+    size_font = 16
+
     plot_individuals = True
-    Summarize_model_wise = True 
-    Summarize_data_wise = True
+    Summarize_model_wise = False 
+    Summarize_data_wise = False
 
     output_dir = "../exp_outputs/{}/".format(job_code)
 
@@ -261,17 +268,33 @@ if __name__ == '__main__':
                             if verbose: 
                                 print("Plotting {}..".format(
                                     exp_name))
+
+                            # manage legends for the paper
+                            #legend_elbo = 'lower right'
+                            legend_elbo = False
+                            legend_dist = 'upper right'
+                            #legend_dist = False
+                            legend_corr = 'lower right'
+                            #legend_corr = False
+
+                            if nb_seqs <= 4 or len_aln <=1000:
+                                legend_elbo = False
+                                legend_dist = False
+                                legend_corr = False
+
                             plt_elbo_ll_kl_rep_figure(
                                     the_scores,
                                     output_exp+\
                                             "/{}_fig_exp{}".format(
                                                 exp_name,
                                                 report_n_epochs),
+                                    sizefont=size_font,
                                     print_xtick_every=\
                                             print_xtick_every,
-                                    usetex=False,
                                     y_limits=[None, 0.],
                                     title=None,
+                                    usetex=False,
+                                    legend=legend_elbo,
                                     plot_validation=True)
 
                             estimates = aggregate_estimate_values(
@@ -288,8 +311,10 @@ if __name__ == '__main__':
                                                 exp_name, 
                                                 report_n_epochs),
                                     y_limits=[-0.1, 1.1],
+                                    sizefont=size_font,
                                     print_xtick_every=\
                                             print_xtick_every,
+                                    legend=legend_dist,
                                     usetex=False)
 
                             plot_fit_estim_corr(
@@ -300,10 +325,11 @@ if __name__ == '__main__':
                                                 exp_name, 
                                                 report_n_epochs),
                                     y_limits=[-1.1, 1.1],
+                                    sizefont=size_font,
                                     print_xtick_every=\
                                             print_xtick_every,
+                                    legend=legend_corr,
                                     usetex=False)
-                        #sys.exit()
 
     # Summarize validation data
     if Summarize_model_wise:
@@ -537,6 +563,7 @@ if __name__ == '__main__':
                             fit_elbos,
                             model_types,
                             out_file,
+                            sizefont=size_font,
                             print_xtick_every=print_xtick_every,
                             title=code)
 

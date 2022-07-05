@@ -31,9 +31,11 @@ def plot_hyperparam_dist(
         hyper_values,
         sim_params,
         out_file,
+        sizefont=14,
         y_limits=[0., None],
         usetex=False,
         print_xtick_every=20,
+        legend='best',
         title=None):
 
     fig_format= "png"
@@ -45,7 +47,6 @@ def plot_hyperparam_dist(
 
     f, axs = plt.subplots(1, nb_evals, figsize=(7*nb_evals, 5))
 
-    sizefont = 10
     plt.rcParams.update({'font.size':sizefont, 'text.usetex':usetex})
     plt.subplots_adjust(wspace=0.07, hspace=0.1)
 
@@ -92,21 +93,26 @@ def plot_hyperparam_dist(
                 t % print_xtick_every==0])
         axs[i].set_ylim(y_limits)
         axs[i].set_xlabel("Iterations")
-        axs[i].grid()
+        axs[i].grid(zorder=-2)
+        axs[i].grid(zorder=-2, visible=True, which='minor', alpha=0.1)
+        axs[i].minorticks_on()
  
         if i != 0:
             axs[i].set(yticklabels=[])
         else:
             axs[i].set_ylabel("Euclidean distance")
 
-    handles,labels = [],[]
-    for ax in f.axes:
-        for h,l in zip(*ax.get_legend_handles_labels()):
-            if l not in labels:
-                handles.append(h)
-                labels.append(l)
-    plt.legend(handles, labels, bbox_to_anchor=(1.02, 1), 
-            loc='upper left', borderaxespad=0.)
+    if legend:
+        handles,labels = [],[]
+        for ax in f.axes:
+            for h,l in zip(*ax.get_legend_handles_labels()):
+                if l not in labels:
+                    handles.append(h)
+                    labels.append(l)
+        #plt.legend(handles, labels, bbox_to_anchor=(1.02, 1), 
+        #        loc='upper left', borderaxespad=0.)
+        plt.legend(handles, labels, loc=legend, framealpha=1,
+                facecolor="white", fancybox=True)
 
     if title:
         plt.suptitle(title)
@@ -122,9 +128,11 @@ def plot_hyperparam_corr(
         hyper_values,
         sim_params,
         out_file,
+        sizefont=14,
         y_limits=[0., None],
         usetex=False,
         print_xtick_every=20,
+        legend='best',
         title=None):
 
     fig_format= "png"
@@ -136,7 +144,6 @@ def plot_hyperparam_corr(
 
     f, axs = plt.subplots(1, nb_evals, figsize=(7*nb_evals, 5))
 
-    sizefont = 10
     plt.rcParams.update({'font.size':sizefont, 'text.usetex':usetex})
     plt.subplots_adjust(wspace=0.07, hspace=0.1)
 
@@ -188,21 +195,26 @@ def plot_hyperparam_corr(
                 t % print_xtick_every==0])
         axs[i].set_ylim(y_limits)
         axs[i].set_xlabel("Iterations")
-        axs[i].grid()
-        
+        axs[i].grid(zorder=-2)
+        axs[i].grid(zorder=-2, visible=True, which='minor', alpha=0.1)
+        axs[i].minorticks_on()
+ 
         if i != 0:
             axs[i].set(yticklabels=[])
         else:
             axs[i].set_ylabel("Correlation coefficient")
 
-    handles,labels = [],[]
-    for ax in f.axes:
-        for h,l in zip(*ax.get_legend_handles_labels()):
-            if l not in labels:
-                handles.append(h)
-                labels.append(l)
-    plt.legend(handles, labels, bbox_to_anchor=(1.02, 1), 
-            loc='upper left', borderaxespad=0.)
+    if legend:
+        handles,labels = [],[]
+        for ax in f.axes:
+            for h,l in zip(*ax.get_legend_handles_labels()):
+                if l not in labels:
+                    handles.append(h)
+                    labels.append(l)
+        #plt.legend(handles, labels, bbox_to_anchor=(1.02, 1), 
+        #        loc='upper left', borderaxespad=0.)
+        plt.legend(handles, labels, loc=legend, framealpha=1,
+                facecolor="white", fancybox=True)
 
     if title:
         plt.suptitle(title)
@@ -217,9 +229,11 @@ def plot_hyperparams(
         hyper_scores,
         hyper_values,
         out_file,
+        sizefont=14,
         usetex=False,
         print_xtick_every=20,
         title=None,
+        legend='best',
         plot_validation=False):
 
     fig_format= "png"
@@ -227,12 +241,10 @@ def plot_hyperparams(
 
     fig_file = out_file+"."+fig_format
 
-
     nb_evals = hyper_scores.shape[0]
 
     f, axs = plt.subplots(1, nb_evals, figsize=(7*nb_evals, 5))
 
-    sizefont = 10
     plt.rcParams.update({'font.size':sizefont, 'text.usetex':usetex})
     plt.subplots_adjust(wspace=0.07, hspace=0.1)
 
@@ -309,7 +321,7 @@ def plot_hyperparams(
                     color= kl_color_v,
                     alpha=0.1, zorder=1, interpolate=True)
 
-        axs[i].set_zorder(ax2.get_zorder()+1)
+        #axs[i].set_zorder(ax2.get_zorder()+1)
         axs[i].set_frame_on(False)
 
         axs[i].set_title(hyper_value)
@@ -321,7 +333,9 @@ def plot_hyperparams(
         axs[i].set_xticks([t for t in range(1, nb_iters+1) if t==1 or\
                 t % print_xtick_every==0])
         axs[i].set_xlabel("Iterations")
-        axs[i].grid()
+        axs[i].grid(zorder=-2)
+        axs[i].grid(zorder=-2, visible=True, which='minor', alpha=0.1)
+        axs[i].minorticks_on()
 
         ax2.set_ylim([ 
             np.min(hyper_scores[:,:,2,:].flatten()),
@@ -337,14 +351,17 @@ def plot_hyperparams(
         else:
             ax2.set_ylabel("KL(q|prior)")
 
-    handles,labels = [],[]
-    for ax in f.axes:
-        for h,l in zip(*ax.get_legend_handles_labels()):
-            if l not in labels:
-                handles.append(h)
-                labels.append(l)
-    plt.legend(handles, labels, bbox_to_anchor=(1.15, 1), 
-            loc='upper left', borderaxespad=0.)
+    if legend:
+        handles,labels = [],[]
+        for ax in f.axes:
+            for h,l in zip(*ax.get_legend_handles_labels()):
+                if l not in labels:
+                    handles.append(h)
+                    labels.append(l)
+        #plt.legend(handles, labels, bbox_to_anchor=(1.15, 1), 
+        #        loc='upper left', borderaxespad=0.)
+        plt.legend(handles, labels, loc=legend, framealpha=1,
+                facecolor="white", fancybox=True)
 
     if title:
         plt.suptitle(title)
@@ -401,9 +418,11 @@ if __name__ == '__main__':
             ]
 
     report_n_epochs = 5000
-    print_xtick_every = 500
+    print_xtick_every = 1000
 
-    plot_individuals = True
+    size_font = 16
+
+    plot_individuals = False
     plot_summarized = True
 
     # Choose here type of data and model
@@ -411,7 +430,7 @@ if __name__ == '__main__':
     evomodel = model_types[ind_model]
     data_model, rates, freqs = data_types[ind_model]
     #
-    nb_seqs, branch_lens = branches[1]
+    nb_seqs, branch_lens = branches[2]
     len_aln = len_alns[2]
 
     output_dir = "../exp_outputs/{}/".format(job_code)
@@ -534,10 +553,12 @@ if __name__ == '__main__':
                             the_scores,
                             output_exp+"/{}_itr{}_fig".format(
                                 exp_name, report_n_epochs),
+                            sizefont=size_font,
                             print_xtick_every=print_xtick_every,
                             usetex=False,
                             y_limits=[None, 0.],
                             title=title,
+                            legend='best',
                             plot_validation=True)
                 
                     plot_fit_estim_dist(
@@ -547,9 +568,11 @@ if __name__ == '__main__':
                                     "/{}_val_estim_dist_itr{}".format(
                                         exp_name, 
                                         report_n_epochs),
+                            sizefont=size_font,
                             y_limits=[-0.1, 1.1],
                             print_xtick_every=\
                                     print_xtick_every,
+                            legend='best',
                             usetex=False)
 
                     plot_fit_estim_corr(
@@ -559,9 +582,11 @@ if __name__ == '__main__':
                                     "/{}_val_estim_corr_itr{}".format(
                                         exp_name, 
                                         report_n_epochs),
+                            sizefont=size_font,
                             y_limits=[-1.1, 1.1],
                             print_xtick_every=\
                                     print_xtick_every,
+                            legend='best',
                             usetex=False)
 
 
@@ -575,12 +600,22 @@ if __name__ == '__main__':
                 print("Plotting {}..".format(evo_hyper))
             out_file = output_sum+"/{}_itr{}".format(evo_hyper,
                     report_n_epochs)
+            
+            legend_elbo = 'lower right'
+            #legend_elbo = False
+            #legend_dist = 'upper right'
+            legend_dist = False
+            legend_corr = 'lower right'
+            #legend_corr = False
+
             plot_hyperparams(
                     hyper_scores,
                     hyper_values,
                     out_file,
+                    sizefont=size_font,
                     print_xtick_every=print_xtick_every,
                     title=None,
+                    legend=legend_elbo,
                     plot_validation=True)
 
             out_file = output_sum+"/{}_estim_dist_itr{}".format(
@@ -590,9 +625,11 @@ if __name__ == '__main__':
                     hyper_values,
                     sim_params,
                     out_file,
+                    sizefont=size_font,
                     print_xtick_every=print_xtick_every,
                     y_limits=[-0.1, 1.1],
                     usetex=False,
+                    legend=legend_dist,
                     title=None)
 
             out_file = output_sum+"/{}_estim_corr_itr{}".format(
@@ -602,7 +639,9 @@ if __name__ == '__main__':
                     hyper_values,
                     sim_params,
                     out_file,
+                    sizefont=size_font,
                     print_xtick_every=print_xtick_every,
                     y_limits=[-1.1, 1.1],
                     usetex=False,
+                    legend=legend_corr,
                     title=None)
