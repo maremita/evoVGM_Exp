@@ -9,13 +9,15 @@ from datetime import datetime
 
 __author__ = "amine"
 
+"""
+python write_run_hyperpam_exps.py eval_conf_template.ini job_code
+"""
 
 if __name__ == '__main__':
 
-    job_code = None
-    sb_program = "submit_evo_exps.sh"
-    program = "eval_run_replicates.py"
- 
+    sb_program = "slurm_exps.sh"
+    program = "evovgm.py"
+
     if len(sys.argv) < 2:
         print("Config file is missing!!")
         sys.exit()
@@ -23,15 +25,17 @@ if __name__ == '__main__':
     if len(sys.argv) == 3:
         job_code = sys.argv[2]
 
+    # Configuration ini file
+    config_file = sys.argv[1]
+
     if job_code:
-        str_time = job_code
         scores_from_file = "True"
     else:
         now = datetime.now()
-        str_time = now.strftime("%m%d%H%M")
+        job_code = now.strftime("%m%d%H%M")
         scores_from_file = "False"
 
-    print("Runing {} experiments\n".format(str_time))
+    print("Runing {} experiments...\n".format(job_code))
 
     max_iter = "5000"
     n_reps = "10"
@@ -91,17 +95,16 @@ if __name__ == '__main__':
 
     ## Fetch argument values from ini file
     ## ###################################
-    config_file = sys.argv[1]
     config = configparser.ConfigParser(
             interpolation=configparser.ExtendedInterpolation())
     
     with open(config_file, "r") as cf:
         config.read_file(cf)
 
-    config_path = "../exp_configs/{}/".format(str_time)
+    config_path = "../exp_configs/{}/".format(job_code)
     makedirs(config_path, mode=0o700, exist_ok=True)
 
-    output_dir = "../exp_outputs/{}/".format(str_time)
+    output_dir = "../exp_outputs/{}/".format(job_code)
     makedirs(output_dir, mode=0o700, exist_ok=True)
 
     config.set("io", "output_path", output_dir)
@@ -115,7 +118,7 @@ if __name__ == '__main__':
     config.set("hperparams", "n_epochs", max_iter)
     config.set("hperparams", "nb_replicates", n_reps)
 
-    job_dir = "../exp_jobs/{}/".format(str_time)
+    job_dir = "../exp_jobs/{}/".format(job_code)
     makedirs(job_dir, mode=0o700, exist_ok=True)
 
     for hyper_code in hyper_types:
