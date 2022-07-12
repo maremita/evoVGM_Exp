@@ -6,27 +6,30 @@ import os.path
 from os import makedirs
 import configparser
 from datetime import datetime
+import json
 
 __author__ = "amine"
 
 """
-python write_run_rep_exps.py eval_conf_template.ini job_code
+python write_run_rep_exps.py ../exp_2022_bcb/evovgm_reps_config.ini\
+        job_code
 """
 
 if __name__ == '__main__':
 
     sb_program = "slurm_exps.sh"
     program = "evovgm.py"
+    job_code = None
  
     if len(sys.argv) < 2:
-        print("Config file is missing!!")
+        print("Config files is missing!!")
         sys.exit()
-
-    if len(sys.argv) == 3:
-        job_code = sys.argv[2]
 
     # Configuration ini file
     config_file = sys.argv[1]
+
+    if len(sys.argv) == 3:
+        job_code = sys.argv[2]
 
     if job_code:
         scores_from_file = "True"
@@ -37,48 +40,6 @@ if __name__ == '__main__':
 
     print("Runing {} experiments...\n".format(job_code))
 
-    max_iter = "5000"
-    n_reps = "10"
-    
-    # Test
-    #max_iter = "100"
-    #n_reps = "2"
-
-    model_types = [
-            "jc69",
-            "k80", 
-            "gtr"
-            ]
-
-    data_types = [
-            ("jc69", "0.160, 0.160, 0.160, 0.160, 0.160, 0.160", 
-                "0.25, 0.25, 0.25, 0.25"), 
-            ("k80" , "0.250, 0.125, 0.125, 0.125, 0.125, 0.250",
-                "0.25, 0.25, 0.25, 0.25"), 
-            ("gtr" , "0.160, 0.050, 0.160, 0.090, 0.300, 0.240",
-                "0.10, 0.45, 0.30, 0.15")
-            ]
-
-    branches = [
-            (3, "0.1,0.3,0.45"),
-            (4, "0.1,0.3,0.45,0.15"),
-            (5, "0.1,0.3,0.45,0.15,0.2")
-            ]
-
-    len_alns = [
-            100, 
-            1000,
-            5000,
-            ]
-
-    exec_time = "12:00:00"
-    mem = "75000M"
-    cpus_per_task = "12"
-
-    # For testing
-    #exec_time = "00:05:00"
-    #mem = "8000M"
-
     ## Fetch argument values from ini file
     ## ###################################
     config = configparser.ConfigParser(
@@ -86,7 +47,40 @@ if __name__ == '__main__':
     
     with open(config_file, "r") as cf:
         config.read_file(cf)
+    
+    # Get write_run_rep_exps.py specific sections:
+    if config.has_section("slurm"):
+        run_slurm = config.getboolean("slurm", "run_slurm")
+        # if run_slurm=False: the script will launch the jobs locally
+        # elif run_slurm=True: it will launch the jobs on slurm
 
+        # SLURM parameters
+        exec_time = config.get("slurm", "exec_time")
+        mem = config.get("slurm", "mem")
+        cpus_per_task = config.get("slurm", "cpus_per_task")
+    else:
+        # The script will launch the jobs locally;
+        run_slurm = False
+
+    run_jobs = config.getboolean("evaluation", "run_jobs")
+    #if run_jobs=False: the script generates the evovgm config files 
+    #but it won't launch the jobs. If run_jobs=True: it runs the jobs
+
+    max_iter = config.get("evaluation", "max_iter") # needs to be str
+    n_reps = config.get("evaluation", "n_reps") # needs to be str
+
+    model_types = json.loads(config.get("evaluation", "model_types"))
+    data_types = json.loads(config.get("evaluation", "data_types"))
+    branches = json.loads(config.get("evaluation", "branches"))
+    len_alns = json.loads(config.get("evaluation", "len_alns"))
+
+    ## Remove slurm and evaluation sections from the config object
+    ## to not include them in the config files of evovgm.py
+    if config.has_section("slurm"):
+        config.remove_section('slurm')
+    config.remove_section('evaluation')
+
+    ## 
     config_path = "../exp_configs/{}/".format(job_code)
     makedirs(config_path, mode=0o700, exist_ok=True)
 
@@ -125,20 +119,28 @@ if __name__ == '__main__':
 
                     with open (config_file, "w") as fh:
                         config.write(fh)
+ 
+                    if run_slurm:
+                        s_error = os.path.join(job_dir,
+                                exp_name+"_%j.err")
+                        s_output = os.path.join(job_dir, 
+                                exp_name+"_%j.out")
 
-                    s_error = os.path.join(job_dir,
-                            exp_name+"_%j.err")
-                    s_output = os.path.join(job_dir, 
-                            exp_name+"_%j.out")
-
-                    cmd = "sbatch --job-name={} --time={}"\
-                            " --export=PROGRAM={},CONF_file={} "\
-                            "--mem={} --cpus-per-task={} --error={}"\
-                            " --output={} {}".format(exp_name,
-                                    exec_time, 
-                                    program, config_file, mem,
-                                    cpus_per_task,
-                                    s_error, s_output, sb_program)
+                        cmd = "sbatch --job-name={} --time={}"\
+                                " --export=PROGRAM={},CONF_file={}"\
+                                " --mem={} --cpus-per-task={}"\
+                                " --error={} --output={} {}".format(
+                                        exp_name,
+                                        exec_time, 
+                                        program,
+                                        config_file,
+                                        mem,
+                                        cpus_per_task,
+                                        s_error,
+                                        s_output,
+                                        sb_program)
+                    else:
+                        cmd = "{} {} &".format(program, config_file)
 
                     res_file = output_dir+\
                             "{}/{}/{}_results.pkl".format(
@@ -146,5 +148,6 @@ if __name__ == '__main__':
 
                     if not os.path.isfile(res_file):
                         print("\n", exp_name)
-                        print(cmd)
-                        os.system(cmd)
+                        if run_jobs:
+                            print(cmd)
+                            #os.system(cmd)

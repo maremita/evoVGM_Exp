@@ -1,2 +1,4 @@
-outputs/*
-jobs_folder/*
+exp_configs/*
+exp_outputs/*
+exp_jobs/*
+*.swp
