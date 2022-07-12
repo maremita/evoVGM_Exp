@@ -2,7 +2,7 @@
 
 #SBATCH --account=ctb-banire
 #SBATCH --mail-user=amine.m.remita@gmail.com
-#SBATCH --job-name=CoV_BP001AK00001
+#SBATCH --job-name=CoV_BP001AKL01
 #SBATCH --time=06:00:00
 #SBATCH --mem=64000M
 #SBATCH --cpus-per-task=12
@@ -21,4 +21,4 @@ pip install --no-index --upgrade pip
 pip install --no-index /home/mremita/project/mremita/Thesis/Software/pyvolve
 pip install --no-index /home/mremita/project/mremita/Thesis/Software/evoVGM
 
-evovgm.py evovgm_cov.ini
+evovgm.py ../exp_2022_bcb/CoV_BP001AKL01_config.ini

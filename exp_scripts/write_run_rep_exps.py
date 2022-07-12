@@ -66,8 +66,8 @@ if __name__ == '__main__':
     #if run_jobs=False: the script generates the evovgm config files 
     #but it won't launch the jobs. If run_jobs=True: it runs the jobs
 
-    max_iter = config.get("evaluation", "max_iter") # needs to be str
-    n_reps = config.get("evaluation", "n_reps") # needs to be str
+    max_iter = config.get("evaluation", "n_epochs") # needs to be str
+    n_reps = config.get("evaluation", "nb_replicates")
 
     model_types = json.loads(config.get("evaluation", "model_types"))
     data_types = json.loads(config.get("evaluation", "data_types"))
@@ -90,8 +90,8 @@ if __name__ == '__main__':
     config.set("io", "output_path", output_dir)
     config.set("io", "scores_from_file", scores_from_file)
     
-    config.set("hperparams", "n_epochs", max_iter)
-    config.set("hperparams", "nb_replicates", n_reps)
+    config.set("hyperparams", "n_epochs", max_iter)
+    config.set("hyperparams", "nb_replicates", n_reps)
 
     job_dir = "../exp_jobs/{}/".format(job_code)
     makedirs(job_dir, mode=0o700, exist_ok=True)
@@ -110,7 +110,7 @@ if __name__ == '__main__':
                     config.set("data", "branch_lengths", branch_lens) 
                     config.set("data", "rates", rates)
                     config.set("data", "freqs", freqs)
-                    config.set("subvmodel", "evomodel", evomodel)
+                    config.set("vb_model", "evomodel", evomodel)
                     config.set("settings", "job_name", exp_name)
 
                     # write it on a file

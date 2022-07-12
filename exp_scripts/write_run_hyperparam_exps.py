@@ -12,7 +12,7 @@ __author__ = "amine"
 
 """
 python write_run_hyperparam_exps.py\
-        ../exp_2022_bcb/evovgm_hyperparam_config.ini job_code
+        ../exp_2022_bcb/evovgm_hyperparams_config.ini job_code
 """
 
 if __name__ == '__main__':
@@ -66,8 +66,8 @@ if __name__ == '__main__':
     #if run_jobs=False: the script generates the evovgm config files 
     #but it won't launch the jobs. If run_jobs=True: it runs the jobs
 
-    max_iter = config.get("evaluation", "max_iter") # needs to be str
-    n_reps = config.get("evaluation", "n_reps") # needs to be str
+    max_iter = config.get("evaluation", "n_epochs") # needs to be str
+    n_reps = config.get("evaluation", "nb_replicates")
 
     # Hyper-parameter grid
     hyper_types = json.loads(config.get("evaluation",
@@ -102,9 +102,9 @@ if __name__ == '__main__':
     config.set("data", "branch_lengths", branch_lens) 
     config.set("data", "rates", rates)
     config.set("data", "freqs", freqs)
-    config.set("subvmodel", "evomodel", evomodel)
-    config.set("hperparams", "n_epochs", max_iter)
-    config.set("hperparams", "nb_replicates", n_reps)
+    config.set("vb_model", "evomodel", evomodel)
+    config.set("hyperparams", "n_epochs", max_iter)
+    config.set("hyperparams", "nb_replicates", n_reps)
 
     job_dir = "../exp_jobs/{}/".format(job_code)
     makedirs(job_dir, mode=0o700, exist_ok=True)
@@ -116,7 +116,7 @@ if __name__ == '__main__':
         # Reset default values for other hyperparms
         for code in hyper_types:
             name = hyper_types[code][0]
-            config.set("hperparams", name, str(hyper_types[code][2]))
+            config.set("hyperparams", name, str(hyper_types[code][2]))
 
         for hyper_value in hyper_values:
             # nb3_l5k_datajc69_evojc69_hs4.ini
@@ -125,7 +125,7 @@ if __name__ == '__main__':
                     hyper_code, hyper_value)
 
             # Update configs
-            config.set("hperparams", hyper_name, str(hyper_value))
+            config.set("hyperparams", hyper_name, str(hyper_value))
             config.set("settings", "job_name", exp_name)
 
             # write it on a file
