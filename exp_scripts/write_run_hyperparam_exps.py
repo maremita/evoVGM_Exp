@@ -54,10 +54,15 @@ if __name__ == '__main__':
         # if run_slurm=False: the script will launch the jobs locally
         # elif run_slurm=True: it will launch the jobs on slurm
 
+        account = config.get("slurm", "account")
+        mail_user = config.get("slurm", "mail_user")
+
         # SLURM parameters
+        cpus_per_task = config.getint("slurm", "cpus_per_task")
+        gpus_per_node = config.getint("slurm", "gpus_per_node",
+                fallback=0)
         exec_time = config.get("slurm", "exec_time")
         mem = config.get("slurm", "mem")
-        cpus_per_task = config.get("slurm", "cpus_per_task")
     else:
         # The script will launch the jobs locally;
         run_slurm = False
@@ -106,6 +111,11 @@ if __name__ == '__main__':
     config.set("hyperparams", "n_epochs", max_iter)
     config.set("hyperparams", "nb_replicates", n_reps)
 
+    if gpus_per_node > 0:
+        config.set("settings", "device", "cuda")
+    else:
+        config.set("settings", "device", "cpu")
+
     job_dir = "../exp_jobs/{}/".format(job_code)
     makedirs(job_dir, mode=0o700, exist_ok=True)
 
@@ -139,16 +149,26 @@ if __name__ == '__main__':
                 s_error = os.path.join(job_dir, exp_name+"_%j.err")
                 s_output = os.path.join(job_dir, exp_name+"_%j.out")
 
-                cmd = "sbatch --job-name={} --time={}"\
-                        " --export=PROGRAM={},CONF_file={} "\
-                        "--mem={} --cpus-per-task={} --error={}"\
-                        " --output={} {}".format(
+                cmd = "sbatch"\
+                        " --account={}"\
+                        " --mail-user={}"\
+                        " --job-name={}"\
+                        " --export=PROGRAM={},CONF_file={}"\
+                        " --gpus-per-node={}"\
+                        " --cpus-per-task={}"\
+                        " --mem={}"\
+                        " --time={}"\
+                        " --error={}"\
+                        " --output={}"\
+                        " {}".format(
+                                account,
+                                mail_user,
                                 exp_name,
-                                exec_time, 
-                                program,
-                                config_file,
-                                mem,
+                                program, config_file,
+                                gpus_per_node,
                                 cpus_per_task,
+                                mem,
+                                exec_time, 
                                 s_error,
                                 s_output,
                                 sb_program)

@@ -3,9 +3,9 @@
 #SBATCH --account=ctb-banire
 #SBATCH --mail-user=amine.m.remita@gmail.com
 #SBATCH --job-name=CoV_BP001AKL01
-#SBATCH --time=06:00:00
-#SBATCH --mem=64000M
 #SBATCH --cpus-per-task=12
+#SBATCH --mem=64000M
+#SBATCH --time=10:00:00
 #SBATCH --error=../exp_jobs/CoV/%j.err
 #SBATCH --output=../exp_jobs/CoV/%j.out
 
