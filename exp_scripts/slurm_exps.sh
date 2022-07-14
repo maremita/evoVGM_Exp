@@ -3,8 +3,8 @@
 ## SBATCH parameters are passed within the command
 
 module load StdEnv/2020
-module load python/3.8
-module load imkl/2020.1.217
+module load python/3.9
+module load imkl/2022.1.0
 
 virtualenv --no-download $SLURM_TMPDIR/env
 source $SLURM_TMPDIR/env/bin/activate

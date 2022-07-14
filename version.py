@@ -9,4 +9,4 @@
 
 __author__ = "amine remita"
 __date__ = "20220713"
-__version__ = "0.12.2"
+__version__ = "0.12.3"

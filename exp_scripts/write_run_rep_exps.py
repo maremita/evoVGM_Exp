@@ -12,14 +12,14 @@ __author__ = "amine"
 
 """
 python write_run_rep_exps.py ../exp_2022_bcb/evovgm_reps_config.ini\
-        job_code
+        jobs_code
 """
 
 if __name__ == '__main__':
 
     sb_program = "slurm_exps.sh"
     program = "evovgm.py"
-    job_code = None
+    jobs_code = None
  
     if len(sys.argv) < 2:
         print("Config files is missing!!")
@@ -29,16 +29,16 @@ if __name__ == '__main__':
     config_file = sys.argv[1]
 
     if len(sys.argv) == 3:
-        job_code = sys.argv[2]
+        jobs_code = sys.argv[2]
 
-    if job_code:
+    if jobs_code:
         scores_from_file = "True"
     else:
         now = datetime.now()
-        job_code = now.strftime("%m%d%H%M")
+        jobs_code = now.strftime("%m%d%H%M")
         scores_from_file = "False"
 
-    print("Runing {} experiments...\n".format(job_code))
+    print("Runing {} experiments...\n".format(jobs_code))
 
     ## Fetch argument values from ini file
     ## ###################################
@@ -86,10 +86,10 @@ if __name__ == '__main__':
     config.remove_section('evaluation')
 
     ## 
-    config_path = "../exp_configs/{}/".format(job_code)
+    config_path = "../exp_configs/{}/".format(jobs_code)
     makedirs(config_path, mode=0o700, exist_ok=True)
 
-    output_dir = "../exp_outputs/{}/".format(job_code)
+    output_dir = "../exp_outputs/{}/".format(jobs_code)
     makedirs(output_dir, mode=0o700, exist_ok=True)
 
     config.set("io", "output_path", output_dir)
@@ -98,12 +98,15 @@ if __name__ == '__main__':
     config.set("hyperparams", "n_epochs", max_iter)
     config.set("hyperparams", "nb_replicates", n_reps)
 
-    if gpus_per_node > 0:
-        config.set("settings", "device", "cuda")
-    else:
-        config.set("settings", "device", "cpu")
+    # config gpu
+    set_gpu = ""
+    config.set("settings", "device", "cpu")
 
-    job_dir = "../exp_jobs/{}/".format(job_code)
+    if gpus_per_node > 0:
+        set_gpu = " --gpus-per-node={}".format(gpus_per_node)
+        config.set("settings", "device", "cuda")
+
+    job_dir = "../exp_jobs/{}/".format(jobs_code)
     makedirs(job_dir, mode=0o700, exist_ok=True)
 
     for data_model, rates, freqs in data_types:
@@ -141,7 +144,7 @@ if __name__ == '__main__':
                                 " --mail-user={}"\
                                 " --job-name={}"\
                                 " --export=PROGRAM={},CONF_file={}"\
-                                " --gpus-per-node={}"\
+                                "{}"\
                                 " --cpus-per-task={}"\
                                 " --mem={}"\
                                 " --time={}"\
@@ -152,7 +155,7 @@ if __name__ == '__main__':
                                         mail_user,
                                         exp_name,
                                         program, config_file,
-                                        gpus_per_node,
+                                        set_gpu,
                                         cpus_per_task,
                                         mem,
                                         exec_time, 
@@ -160,6 +163,16 @@ if __name__ == '__main__':
                                         s_output,
                                         sb_program)
                     else:
+                        ## ##########################################
+                        ## WARNING: 
+                        ## The script will run several
+                        ## tasks locally in the background. Make sure 
+                        ## that you have the necessary resources on 
+                        ## your machine. It can crash the system.
+                        ## You can modify the grid of parameters
+                        ## to be evaluated in the config file to 
+                        ## reduce the number of scenarios.
+                        ## ##########################################
                         cmd = "{} {} &".format(program, config_file)
 
                     res_file = output_dir+\
@@ -170,4 +183,4 @@ if __name__ == '__main__':
                         print("\n", exp_name)
                         if run_jobs:
                             print(cmd)
-                            #os.system(cmd)
+                            os.system(cmd)
